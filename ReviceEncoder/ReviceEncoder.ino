@@ -42,11 +42,11 @@ void processPulse() {
           Serial.print("Loop Sound ");
           switch (lastStatus) {
             case 2:
-              sendCode(164);
+              sendUnwaitCode(164);
               Serial.println("2");
               break;
             case 5:
-              sendCode(167);
+              sendUnwaitCode(167);
               Serial.println("5");
               break;
           }
@@ -60,7 +60,7 @@ void processPulse() {
       ATimerNow = 0;
       //Serial.println("Sent Pulse");
       if (isSending == 0) {
-        sendCode(150);
+        sendUnwaitCode(150);
       }
     }
   }
@@ -82,12 +82,6 @@ void loop() {
   }
 
   if (comdata !=  "") {
-    //Check if ATimerNow is above 200.
-	//Important! Remove this will cause the IR commands "remix".
-    if (ATimerNow <= 200) {
-      Serial.println("Delay");
-      delay(200);
-    }
     //Serial.println(comdata);
     if (comdata == "0\n" || comdata == "0\r\n") {
       Serial.println("Set Status 0");
@@ -236,10 +230,20 @@ void loop() {
   }
 }
 
-void sendCode(int code) {
+void sendUnwaitCode(int code) {
   int ccode[30] = {};
   getCode(code, ccode);
   IrSender.sendRaw(ccode, 20, 38);
+}
+
+void sendCode(int code) {
+  //Check if ATimerNow is above 200.
+  //Important! Remove this will cause the IR commands "remix".
+  if (ATimerNow <= 200) {
+    //Serial.println("Delay");
+    delay(200);
+  }
+  sendUnwaitCode(code);
 }
 
 void convertDecToBin(int Dec, boolean Bin[]) {
